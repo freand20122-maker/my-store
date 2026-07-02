@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تويتي فون الزعفرانية</title>
+<title>INGCO</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
 
@@ -24,19 +24,44 @@
 body { font-family:'Cairo',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
 
 #splash {
-  position:fixed; inset:0; background:linear-gradient(135deg,#f9a825,#f57f17,#ff6f00);
+  position:fixed; inset:0; overflow:hidden;
+  background:
+    radial-gradient(circle at 25% 20%, #f9a82533, transparent 55%),
+    radial-gradient(circle at 80% 85%, #ff6f0033, transparent 55%),
+    linear-gradient(135deg,#1c1c1c 0%,#2b2b2b 100%);
   display:flex; flex-direction:column; align-items:center; justify-content:center;
-  z-index:9999; transition:opacity 0.6s;
+  z-index:9999; transition:opacity 0.6s ease;
 }
 #splash.hide { opacity:0; pointer-events:none; }
-.splash-logo { font-size:3rem; font-weight:900; color:#fff; margin-bottom:8px; }
-.splash-sub { color:#fff3e0; font-size:1rem; margin-bottom:30px; }
-.splash-spinner {
-  width:40px; height:40px; border:3px solid #ffffff22;
-  border-top-color:#fff; border-radius:50%;
-  animation:spin 0.8s linear infinite;
+.splash-logo-box {
+  width:86px; height:86px; border-radius:22px;
+  background:linear-gradient(135deg,#f9a825,#ff6f00);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.9rem; font-weight:900; color:#fff; letter-spacing:1px;
+  box-shadow:0 12px 32px #f9a82550;
+  margin-bottom:18px;
+  animation:splashPop 0.6s cubic-bezier(.34,1.56,.64,1) both, splashFloat 2.6s ease-in-out 0.6s infinite;
 }
-@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes splashPop { from{opacity:0;transform:scale(0.5) translateY(16px);} to{opacity:1;transform:scale(1) translateY(0);} }
+@keyframes splashFloat { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-7px);} }
+.splash-logo { font-size:1.7rem; font-weight:900; color:#fff; letter-spacing:3px; margin-bottom:6px; animation:splashFade 0.6s 0.15s both; }
+.splash-sub { color:#ffcc80; font-size:0.85rem; letter-spacing:0.5px; margin-bottom:30px; animation:splashFade 0.6s 0.3s both; }
+@keyframes splashFade { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+.splash-loader { display:flex; align-items:flex-end; gap:6px; height:36px; animation:splashFade 0.6s 0.45s both; }
+.splash-loader span {
+  width:7px; border-radius:5px;
+  background:linear-gradient(180deg,#ffd699,#f9a825,#ff6f00);
+  animation:barPulse 1s ease-in-out infinite;
+  box-shadow:0 0 10px #f9a82560;
+}
+.splash-loader span:nth-child(1) { animation-delay:0s; }
+.splash-loader span:nth-child(2) { animation-delay:0.15s; }
+.splash-loader span:nth-child(3) { animation-delay:0.3s; }
+.splash-loader span:nth-child(4) { animation-delay:0.45s; }
+@keyframes barPulse {
+  0%,100% { height:9px; opacity:0.45; }
+  50% { height:36px; opacity:1; }
+}
 
 header {
   background:linear-gradient(135deg,#f9a825,#f57f17);
@@ -87,6 +112,8 @@ header {
   background:linear-gradient(135deg,#f9a825 0%,#f57f17 50%,#ff6f00 100%);
   color:white; text-align:center; padding:50px 20px; position:relative; overflow:hidden;
 }
+#heroCircuit { position:absolute; inset:0; width:100%; height:100%; z-index:0; opacity:0.5; }
+.hero h1, .hero p, .hero-stats, .social-links { position:relative; z-index:2; }
 .hero::before {
   content:''; position:absolute; inset:0;
   background:radial-gradient(ellipse at center,#ffffff20 0%,transparent 70%);
@@ -388,9 +415,10 @@ header {
 <body>
 
 <div id="splash">
-  <div class="splash-logo">تويتي فون</div>
-  <div class="splash-sub">الزعفرانية</div>
-  <div class="splash-spinner"></div>
+  <div class="splash-logo-box">IN</div>
+  <div class="splash-logo">INGCO</div>
+  <div class="splash-sub">عدد وأدوات احترافية</div>
+  <div class="splash-loader"><span></span><span></span><span></span><span></span></div>
 </div>
 
 <header>
@@ -398,8 +426,8 @@ header {
     <div class="logo-wrap" onclick="scrollTo(0,0)">
       <img class="logo-img" id="headerLogo" src="" alt="شعار المتجر" style="display:none">
       <div class="logo-text">
-        <span class="main" id="storeName">تويتي فون الزعفرانية</span>
-        <span class="sub" id="storeTagline">ملتزمات الهاتف والسماعات والبورات</span>
+        <span class="main" id="storeName">INGCO</span>
+        <span class="sub" id="storeTagline">عدد وأدوات احترافية</span>
       </div>
     </div>
     <div class="search-bar">
@@ -414,9 +442,10 @@ header {
   </div>
 </header>
 
-<div class="hero">
-  <h1>مرحباً بك في <span id="heroStoreName">تويتي فون الزعفرانية</span></h1>
-  <p id="heroDesc">ملتزمات الهاتف والسماعات والبورات والمزيد</p>
+<div class="hero" id="heroSection">
+  <canvas id="heroCircuit"></canvas>
+  <h1>مرحباً بك في <span id="heroStoreName">INGCO</span></h1>
+  <p id="heroDesc">عدد وأدوات احترافية بأعلى جودة، لكل ما تحتاجه من معداتك</p>
   <div class="hero-stats">
     <div class="hero-stat">
       <div class="hero-stat-num" id="statProducts">0</div>
@@ -502,9 +531,9 @@ header {
       </div>
       <div id="tabSettings">
         <div class="settings-box">
-          <div class="form-group"><label>اسم المتجر</label><input type="text" id="sName" placeholder="تويتي فون الزعفرانية"></div>
+          <div class="form-group"><label>اسم المتجر</label><input type="text" id="sName" placeholder="INGCO"></div>
           <div class="form-group"><label>وصف المتجر</label><input type="text" id="sDesc" placeholder="ملتزمات الهاتف والسماعات..."></div>
-          <div class="form-group"><label>📍 العنوان</label><input type="text" id="sAddress" placeholder="بغداد الزعفرانية..."></div>
+          <div class="form-group"><label>📍 العنوان</label><input type="text" id="sAddress" placeholder="بغداد، العراق"></div>
           <div class="form-group"><label>رقم الواتساب</label><input type="text" id="sWhatsapp" placeholder="07700000000"></div>
 
           <div class="form-group">
@@ -602,11 +631,11 @@ async function loadSettings(){
     const data=await sbGet('settings','id=eq.store');
     if(data&&data.length>0){
       const s=data[0]; _storeSettings=s;
-      document.getElementById('storeName').textContent=s.name||'تويتي فون الزعفرانية';
-      document.getElementById('heroStoreName').textContent=s.name||'تويتي فون الزعفرانية';
-      document.getElementById('heroDesc').textContent=s.description||'ملتزمات الهاتف والسماعات والبورات والمزيد';
+      document.getElementById('storeName').textContent=s.name||'INGCO';
+      document.getElementById('heroStoreName').textContent=s.name||'INGCO';
+      document.getElementById('heroDesc').textContent=s.description||'عدد وأدوات احترافية بأعلى جودة، لكل ما تحتاجه من معداتك';
       if(s.tagline) document.getElementById('storeTagline').textContent=s.tagline;
-      document.title=s.name||'تويتي فون الزعفرانية';
+      document.title=s.name||'INGCO';
       if(s.address){
         const bar=document.getElementById('addressBar');
         bar.textContent=s.address;
@@ -648,7 +677,7 @@ function renderSocialLinks(s){
 }
 
 async function saveSettings(){
-  const name=document.getElementById('sName').value.trim()||'تويتي فون الزعفرانية';
+  const name=document.getElementById('sName').value.trim()||'INGCO';
   const description=document.getElementById('sDesc').value.trim();
   const address=document.getElementById('sAddress').value.trim();
   const whatsapp=document.getElementById('sWhatsapp').value.trim();
@@ -930,6 +959,101 @@ window.addEventListener('load',()=>{
     document.getElementById('splash').classList.add('hide');
   }, 1500);
 });
+
+/* ================= HERO CIRCUIT-PULSE BACKGROUND ================= */
+(function(){
+  const heroEl = document.getElementById('heroSection');
+  const canvas = document.getElementById('heroCircuit');
+  const ctx = canvas.getContext('2d');
+  let wires = [];
+
+  function size(){
+    const w = heroEl.offsetWidth, h = heroEl.offsetHeight;
+    canvas.width = w*devicePixelRatio; canvas.height = h*devicePixelRatio;
+    canvas.style.width = w+'px'; canvas.style.height = h+'px';
+    return {w,h};
+  }
+
+  function buildWires(){
+    const {w,h} = size();
+    wires = [];
+    const count = w < 500 ? 6 : 9;
+    for(let i=0;i<count;i++){
+      let x = Math.random()*w, y = Math.random()*h;
+      const pts=[{x,y}];
+      const segs = 2+Math.floor(Math.random()*3);
+      for(let s=0;s<segs;s++){
+        if(Math.random()<0.5) x += (Math.random()<0.5?1:-1)*(40+Math.random()*70);
+        else y += (Math.random()<0.5?1:-1)*(30+Math.random()*40);
+        x = Math.max(6,Math.min(w-6,x));
+        y = Math.max(6,Math.min(h-6,y));
+        pts.push({x,y});
+      }
+      wires.push({ pts, pulses:[{t:Math.random(), speed:0.25+Math.random()*0.3}] });
+    }
+  }
+
+  function wireLen(pts){ let l=0; for(let i=1;i<pts.length;i++) l+=Math.hypot(pts[i].x-pts[i-1].x,pts[i].y-pts[i-1].y); return l; }
+  function pointAtT(pts,t){
+    const total = wireLen(pts);
+    let target = t*total, acc=0;
+    for(let i=1;i<pts.length;i++){
+      const segLen = Math.hypot(pts[i].x-pts[i-1].x, pts[i].y-pts[i-1].y);
+      if(acc+segLen>=target){
+        const lt = segLen ? (target-acc)/segLen : 0;
+        return { x: pts[i-1].x+(pts[i].x-pts[i-1].x)*lt, y: pts[i-1].y+(pts[i].y-pts[i-1].y)*lt };
+      }
+      acc+=segLen;
+    }
+    return pts[pts.length-1];
+  }
+
+  function draw(){
+    const w=canvas.width, h=canvas.height;
+    ctx.clearRect(0,0,w,h);
+    ctx.strokeStyle='rgba(255,255,255,0.22)';
+    ctx.lineWidth=1.4*devicePixelRatio;
+    wires.forEach(wire=>{
+      ctx.beginPath();
+      wire.pts.forEach((p,i)=>{ const x=p.x*devicePixelRatio,y=p.y*devicePixelRatio; if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); });
+      ctx.stroke();
+      wire.pts.forEach(p=>{
+        ctx.beginPath(); ctx.arc(p.x*devicePixelRatio,p.y*devicePixelRatio,2*devicePixelRatio,0,Math.PI*2);
+        ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.fill();
+      });
+      wire.pulses.forEach(p=>{
+        p.t += p.speed*0.012;
+        if(p.t>1) p.t=0;
+        const pos = pointAtT(wire.pts,p.t);
+        ctx.beginPath();
+        ctx.fillStyle='#fff8e1'; ctx.shadowColor='#ffe082'; ctx.shadowBlur=10*devicePixelRatio;
+        ctx.arc(pos.x*devicePixelRatio,pos.y*devicePixelRatio,3*devicePixelRatio,0,Math.PI*2);
+        ctx.fill(); ctx.shadowBlur=0;
+      });
+    });
+    requestAnimationFrame(draw);
+  }
+
+  function pulseAt(clientX,clientY){
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX-rect.left, y = clientY-rect.top;
+    let best=null,bestD=1e9;
+    wires.forEach(wire=>{
+      for(let t=0;t<=1;t+=0.08){
+        const p=pointAtT(wire.pts,t);
+        const d=Math.hypot(p.x-x,p.y-y);
+        if(d<bestD){bestD=d;best={wire,t};}
+      }
+    });
+    if(best) best.wire.pulses.push({t:best.t, speed:0.4+Math.random()*0.3});
+  }
+
+  heroEl.addEventListener('pointerdown', e => pulseAt(e.clientX, e.clientY));
+  window.addEventListener('resize', buildWires);
+
+  buildWires();
+  draw();
+})();
 
 loadSettings();
 loadProducts();
