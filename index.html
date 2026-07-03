@@ -138,10 +138,10 @@ header {
   text-decoration:none; color:white; font-weight:700; font-size:0.72rem;
 }
 .social-btn .icon {
-  width:52px; height:52px; border-radius:16px;
+  width:52px; height:52px; border-radius:14px;
   display:flex; align-items:center; justify-content:center;
-  font-size:1.6rem; box-shadow:0 4px 14px #0004;
-  transition:all 0.2s; border:1px solid #ffffff30;
+  box-shadow:0 4px 14px #0004, inset 0 1px 0 #ffffff30;
+  transition:all 0.2s; border:1px solid #ffffff25;
 }
 .social-btn:hover .icon { transform:translateY(-3px) scale(1.06); box-shadow:0 8px 20px #0005; }
 .social-btn.tiktok .icon { background:linear-gradient(135deg,#000000,#25f4ee); }
@@ -160,6 +160,41 @@ header {
 #bgBlueprint { position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
 
 .category-bar { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:20px; }
+.filter-row { display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+.filter-row select {
+  padding:8px 12px; border-radius:14px; border:1.5px solid var(--border);
+  background:white; font-family:'Cairo',sans-serif; font-size:0.82rem; color:var(--text);
+}
+.price-filter { display:flex; align-items:center; gap:6px; }
+.price-filter input {
+  width:72px; padding:8px 10px; border-radius:14px; border:1.5px solid var(--border);
+  font-family:'Cairo',sans-serif; font-size:0.82rem; text-align:center;
+}
+.price-filter span { color:var(--muted); font-size:0.8rem; }
+.rating-stars { color:#f9a825; font-size:0.76rem; margin-bottom:4px; }
+.rating-stars .empty { color:#e0d5c0; }
+.old-price { text-decoration:line-through; color:#aaa; font-size:0.74rem; margin-right:6px; }
+.badge.discount { background:linear-gradient(135deg,#43a047,#2e7d32); }
+.badge.oos { background:linear-gradient(135deg,#616161,#424242); }
+.fav-btn {
+  position:absolute; top:8px; left:8px; z-index:2;
+  width:30px; height:30px; border-radius:50%; border:none;
+  background:#ffffffdd; display:flex; align-items:center; justify-content:center;
+  font-size:1rem; cursor:pointer; box-shadow:0 2px 8px #0002; transition:all 0.15s;
+}
+.fav-btn.active { background:#ffe0e0; }
+.product-card.oos .add-btn { background:#bbb; pointer-events:none; }
+.product-card.oos .product-img, .product-card.oos .product-img-placeholder { opacity:0.5; }
+.skeleton-card { background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 2px 12px #0001; }
+.skeleton-img { width:100%; height:185px; }
+.skeleton-line { height:12px; border-radius:6px; margin:10px 12px; }
+.skeleton-line.short { width:50%; }
+.skeleton-img, .skeleton-line {
+  background:linear-gradient(90deg,#f0ede6 25%,#f9f6ef 50%,#f0ede6 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer { 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
 .cat-btn {
   padding:7px 18px; border-radius:20px; border:1.5px solid var(--border);
   background:white; font-family:'Cairo',sans-serif; font-size:0.85rem;
@@ -409,7 +444,8 @@ header {
   .contact-grid { grid-template-columns:1fr; }
   .hero-stats { gap:16px; }
   .social-links { gap:8px; }
-  .social-btn .icon { width:44px; height:44px; font-size:1.35rem; }
+  .social-btn .icon { width:44px; height:44px; }
+  .social-btn .icon svg { width:20px; height:20px; }
 }
 </style>
 </head>
@@ -465,12 +501,28 @@ header {
 
 <div class="main">
   <div class="category-bar" id="categoryBar"></div>
+  <div class="filter-row">
+    <select id="sortSelect" onchange="renderProducts()">
+      <option value="new">🆕 الأحدث</option>
+      <option value="price_asc">💰 الأقل سعراً</option>
+      <option value="price_desc">💎 الأعلى سعراً</option>
+      <option value="rating">⭐ الأعلى تقييماً</option>
+    </select>
+    <div class="price-filter">
+      <input type="number" id="priceMin" placeholder="من" oninput="renderProducts()">
+      <span>—</span>
+      <input type="number" id="priceMax" placeholder="إلى" oninput="renderProducts()">
+    </div>
+  </div>
   <div class="section-header">
     <div class="section-title">المنتجات</div>
     <div class="products-count" id="productsCount"></div>
   </div>
   <div class="product-grid" id="productGrid">
-    <div class="no-products">⏳ جارٍ تحميل المنتجات...</div>
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+    <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
   </div>
 
   <div class="contact-section" id="contactSection" style="display:none">
@@ -486,6 +538,7 @@ header {
       </div>
     </div>
     <button class="whatsapp-btn" onclick="openWhatsapp()">تواصل عبر الواتساب</button>
+    <button class="whatsapp-btn" style="background:linear-gradient(135deg,#f9a825,#ff6f00);margin-top:10px" onclick="shareStore()">📤 شارك المتجر</button>
   </div>
 </div>
 
@@ -495,11 +548,19 @@ header {
     <img class="detail-img" id="detailImg" src="" alt="" style="display:none">
     <div class="detail-name" id="detailName"></div>
     <div class="detail-cat" id="detailCat"></div>
+    <div id="detailRating"></div>
     <div class="detail-desc" id="detailDesc"></div>
     <div class="detail-price" id="detailPrice"></div>
+    <div id="detailStock" style="font-size:0.82rem;font-weight:700;margin-bottom:10px"></div>
+    <div class="cart-qty" style="justify-content:center;gap:14px;margin-bottom:14px">
+      <button class="qty-btn" onclick="changeDetailQty(-1)">−</button>
+      <span id="detailQty" style="font-weight:900;font-size:1rem;min-width:22px;text-align:center">1</span>
+      <button class="qty-btn" onclick="changeDetailQty(1)">+</button>
+    </div>
     <div class="detail-actions">
-      <button class="submit-btn" onclick="addToCartFromDetail()">🛒 أضف للسلة</button>
+      <button class="submit-btn" id="detailAddBtn" onclick="addToCartFromDetail()">🛒 أضف للسلة</button>
       <button class="ws-detail-btn" onclick="orderProductWhatsapp()">💬</button>
+      <button class="ws-detail-btn" onclick="shareProduct()" style="background:linear-gradient(135deg,#607d8b,#455a64)">📤</button>
     </div>
   </div>
 </div>
@@ -561,8 +622,20 @@ header {
       <div id="tabAdd" style="display:none">
         <div class="form-group"><label>اسم المنتج *</label><input type="text" id="pName" placeholder="مثال: سماعة بلوتوث JBL"></div>
         <div class="form-group"><label>السعر (دينار) *</label><input type="number" id="pPrice" placeholder="15000" min="0"></div>
+        <div class="form-group"><label>السعر قبل الخصم (اختياري)</label><input type="number" id="pOldPrice" placeholder="مثال: 20000" min="0"></div>
         <div class="form-group"><label>الفئة</label><input type="text" id="pCat" placeholder="سماعات / شواحن / بورات..."></div>
         <div class="form-group"><label>وصف المنتج</label><textarea id="pDesc" placeholder="وصف مختصر..."></textarea></div>
+        <div class="form-group">
+          <label>التقييم (اختياري)</label>
+          <select id="pRating">
+            <option value="0">بدون تقييم</option>
+            <option value="1">⭐ 1</option>
+            <option value="2">⭐⭐ 2</option>
+            <option value="3">⭐⭐⭐ 3</option>
+            <option value="4">⭐⭐⭐⭐ 4</option>
+            <option value="5" selected>⭐⭐⭐⭐⭐ 5</option>
+          </select>
+        </div>
         <div class="form-group">
           <label>🖼️ صورة المنتج</label>
           <div class="upload-area">
@@ -575,7 +648,9 @@ header {
           <div id="uploadStatus" style="font-size:0.78rem;color:var(--muted);margin-top:4px;text-align:center"></div>
         </div>
         <div class="form-group"><label><input type="checkbox" id="pNew"> ✨ منتج جديد (شارة)</label></div>
+        <div class="form-group"><label><input type="checkbox" id="pInStock" checked> 📦 متوفر بالمخزون</label></div>
         <button class="submit-btn" id="addProductBtn" onclick="addProduct()">➕ إضافة المنتج</button>
+        <button class="delete-btn" style="width:100%;margin-top:8px;padding:10px" onclick="cancelEdit()">إلغاء التعديل</button>
       </div>
     </div>
   </div>
@@ -599,7 +674,16 @@ const SUPABASE_KEY = "sb_publishable_OAitZsYE9i4RU3XUFgVt9A_zU4-w9y9";
 
 const sbH = {"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+SUPABASE_KEY};
 
-let _products=[], _cart=[], _isAdmin=false, _detailProduct=null, _currentFilter='الكل', _storeSettings={}, _selectedImageFile=null, _selectedLogoFile=null;
+let _products=[], _cart=[], _isAdmin=false, _detailProduct=null, _currentFilter='الكل', _storeSettings={}, _selectedImageFile=null, _selectedLogoFile=null, _cartRestored=false, _detailQty=1;
+let _favorites = JSON.parse(localStorage.getItem('ingco_favs')||'[]');
+function vibrate(ms){ if(navigator.vibrate) navigator.vibrate(ms); }
+function saveFavorites(){ localStorage.setItem('ingco_favs', JSON.stringify(_favorites)); }
+function toggleFavorite(id){
+  event && event.stopPropagation && event.stopPropagation();
+  const i=_favorites.indexOf(id);
+  if(i>-1){ _favorites.splice(i,1); } else { _favorites.push(id); vibrate(15); }
+  saveFavorites(); renderProducts();
+}
 
 async function sbGet(t,p=''){const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}?${p}`,{headers:sbH});return r.json();}
 async function sbPost(t,d){const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}`,{method:'POST',headers:{...sbH,'Prefer':'return=representation'},body:JSON.stringify(d)});return r.json();}
@@ -617,10 +701,16 @@ async function uploadImage(file, folder='products'){
 async function loadProducts(){
   try{
     const data=await sbGet('products','order=created_at.desc');
-    _products=(data||[]).map(p=>({id:p.id,name:p.name,price:p.price,category:p.category||'عام',desc:p.description,imageUrl:p.image_url||'',isNew:p.is_new}));
+    _products=(data||[]).map(p=>({
+      id:p.id,name:p.name,price:p.price,category:p.category||'عام',desc:p.description,
+      imageUrl:p.image_url||'',isNew:p.is_new,
+      rating:p.rating||0, oldPrice:p.old_price||null,
+      inStock:p.in_stock===false?false:true, createdAt:p.created_at
+    }));
     renderCategories(); renderProducts();
     document.getElementById('statProducts').textContent=_products.length;
     document.getElementById('statCats').textContent=new Set(_products.map(p=>p.category)).size;
+    if(!_cartRestored){ restoreCartFromLS(); _cartRestored=true; }
     if(_isAdmin) renderAdminProducts();
   }catch(e){
     console.error('❌ loadProducts error:',e);
@@ -664,10 +754,15 @@ async function loadSettings(){
 
 function renderSocialLinks(s){
   const container=document.getElementById('socialLinks');
+  const icons = {
+    tiktok: `<svg viewBox="0 0 24 24" width="24" height="24" fill="#fff"><path d="M16.6 3c.4 2.3 1.8 3.9 4.1 4.1v2.9c-1.5 0-2.9-.5-4.1-1.3v6.6c0 3.4-2.7 6.1-6.1 6.1S4.4 18 4.4 14.6c0-3.3 2.6-6 5.9-6.1v3c-1.6.1-2.9 1.4-2.9 3.1 0 1.7 1.4 3.1 3.1 3.1s3.1-1.4 3.1-3.1V3h3z"/></svg>`,
+    facebook: `<svg viewBox="0 0 24 24" width="24" height="24" fill="#fff"><path d="M14.5 21v-7.6h2.6l.4-3H14.5V8.3c0-.9.2-1.5 1.6-1.5h1.6V4.1C17.4 4 16.4 4 15.3 4c-2.6 0-4.4 1.6-4.4 4.5v2h-2.7v3h2.7V21h3.6z"/></svg>`,
+    telegram: `<svg viewBox="0 0 24 24" width="24" height="24" fill="#fff"><path d="M21.5 3.5L2.7 10.8c-.9.4-.9 1 .1 1.3l4.6 1.4 1.8 5.5c.2.6.5.7.9.4l2.6-2.4 4.5 3.3c.6.4 1.1.2 1.3-.5l3.4-15.5c.2-.9-.4-1.3-1.4-.8z"/></svg>`
+  };
   const links=[
-    {id:'tiktok',icon:'🎵',label:'تيك توك',url:s.tiktok_url},
-    {id:'facebook',icon:'f',label:'فيسبوك',url:s.facebook_url},
-    {id:'telegram',icon:'✈️',label:'تليجرام',url:s.telegram_url}
+    {id:'tiktok',icon:icons.tiktok,label:'تيك توك',url:s.tiktok_url},
+    {id:'facebook',icon:icons.facebook,label:'فيسبوك',url:s.facebook_url},
+    {id:'telegram',icon:icons.telegram,label:'تليجرام',url:s.telegram_url}
   ];
   const html=links.filter(l=>l.url).map(l=>`
     <a href="${l.url}" target="_blank" class="social-btn ${l.id}" title="${l.label}">
@@ -736,18 +831,26 @@ function handleImageSelect(input){
   document.getElementById('uploadStatus').textContent='✅ '+file.name;
 }
 
+let _editingProductId = null;
+
 async function addProduct(){
   const name=document.getElementById('pName').value.trim();
-  const price=Number(document.getElementById('pPrice').value);
+  const priceRaw=document.getElementById('pPrice').value.trim();
+  const price=Number(priceRaw);
+  const oldPriceVal=document.getElementById('pOldPrice').value.trim();
+  const old_price=oldPriceVal?Number(oldPriceVal):null;
   const category=document.getElementById('pCat').value.trim()||'عام';
   const description=document.getElementById('pDesc').value.trim();
   const is_new=document.getElementById('pNew').checked;
+  const in_stock=document.getElementById('pInStock').checked;
+  const rating=Number(document.getElementById('pRating').value)||0;
   if(!name){showToast('⚠️ أدخل اسم المنتج');return;}
-  if(!price||price<=0){showToast('⚠️ أدخل سعراً صحيحاً');return;}
+  if(priceRaw===''||isNaN(price)||price<0){showToast('⚠️ أدخل سعراً صحيحاً (0 أو أكثر)');return;}
   const btn=document.getElementById('addProductBtn');
-  btn.disabled=true; btn.textContent='جارٍ الإضافة...';
+  const isEdit = !!_editingProductId;
+  btn.disabled=true; btn.textContent=isEdit?'جارٍ الحفظ...':'جارٍ الإضافة...';
   try{
-    let image_url='';
+    let image_url = isEdit ? ((_products.find(p=>p.id===_editingProductId)||{}).imageUrl||'') : '';
     if(_selectedImageFile){
       btn.textContent='⬆️ جارٍ رفع الصورة...';
       document.getElementById('uploadProgress').style.display='block';
@@ -755,23 +858,59 @@ async function addProduct(){
       image_url=await uploadImage(_selectedImageFile);
       document.getElementById('uploadProgressBar').style.width='100%';
     }
-    await sbPost('products',{name,price,category,description,image_url,is_new});
-    document.getElementById('pName').value='';
-    document.getElementById('pPrice').value='';
-    document.getElementById('pCat').value='';
-    document.getElementById('pDesc').value='';
-    document.getElementById('pNew').checked=false;
-    document.getElementById('pImageFile').value='';
-    document.getElementById('imgPreviewBox').style.display='none';
-    document.getElementById('uploadProgress').style.display='none';
-    document.getElementById('uploadProgressBar').style.width='0%';
-    document.getElementById('uploadStatus').textContent='';
-    _selectedImageFile=null;
+    const payload={name,price,old_price,category,description,image_url,is_new,in_stock,rating};
+    if(isEdit){ await sbPatch('products',`id=eq.${_editingProductId}`,payload); }
+    else{ await sbPost('products',payload); }
+    resetProductForm();
     await loadProducts();
-    showToast('✅ تمت إضافة المنتج!');
+    showToast(isEdit?'✅ تم حفظ التعديلات!':'✅ تمت إضافة المنتج!');
     switchTab('tabProducts',document.querySelectorAll('.tab-btn')[1]);
   }catch(e){showToast('❌ خطأ: '+e.message);}
-  btn.disabled=false; btn.textContent='➕ إضافة المنتج';
+  btn.disabled=false;
+  _editingProductId=null;
+  btn.textContent='➕ إضافة المنتج';
+}
+
+function resetProductForm(){
+  document.getElementById('pName').value='';
+  document.getElementById('pPrice').value='';
+  document.getElementById('pOldPrice').value='';
+  document.getElementById('pCat').value='';
+  document.getElementById('pDesc').value='';
+  document.getElementById('pNew').checked=false;
+  document.getElementById('pInStock').checked=true;
+  document.getElementById('pRating').value='5';
+  document.getElementById('pImageFile').value='';
+  document.getElementById('imgPreviewBox').style.display='none';
+  document.getElementById('uploadProgress').style.display='none';
+  document.getElementById('uploadProgressBar').style.width='0%';
+  document.getElementById('uploadStatus').textContent='';
+  _selectedImageFile=null;
+}
+
+function editProduct(id){
+  const p=_products.find(x=>x.id===id); if(!p) return;
+  _editingProductId=id;
+  document.getElementById('pName').value=p.name||'';
+  document.getElementById('pPrice').value=p.price||'';
+  document.getElementById('pOldPrice').value=p.oldPrice||'';
+  document.getElementById('pCat').value=p.category||'';
+  document.getElementById('pDesc').value=p.desc||'';
+  document.getElementById('pNew').checked=!!p.isNew;
+  document.getElementById('pInStock').checked=p.inStock!==false;
+  document.getElementById('pRating').value=String(p.rating||0);
+  const imgBox=document.getElementById('imgPreviewBox');
+  if(p.imageUrl){ imgBox.src=p.imageUrl; imgBox.style.display='block'; delete imgBox.dataset.file; }
+  else { imgBox.style.display='none'; }
+  document.getElementById('addProductBtn').textContent='💾 حفظ التعديلات';
+  switchTab('tabAdd', document.querySelectorAll('.tab-btn')[2]);
+  showToast('✏️ تعدّل الآن: '+p.name);
+}
+
+function cancelEdit(){
+  _editingProductId=null;
+  resetProductForm();
+  document.getElementById('addProductBtn').textContent='➕ إضافة المنتج';
 }
 
 async function deleteProduct(id){
@@ -817,51 +956,125 @@ async function loadAdminSettings(){
 function getCategories(){return['الكل',...new Set(_products.map(p=>p.category).filter(Boolean))];}
 
 function renderCategories(){
-  document.getElementById('categoryBar').innerHTML=getCategories().map(c=>{
+  const cats = getCategories().map(c=>{
     const count=c==='الكل'?_products.length:_products.filter(p=>p.category===c).length;
     return `<button class="cat-btn ${c===_currentFilter?'active':''}" onclick="filterByCategory('${c}')">${c} <small>(${count})</small></button>`;
   }).join('');
+  const favBtn = `<button class="cat-btn ${_currentFilter==='__FAV__'?'active':''}" onclick="filterByCategory('__FAV__')">❤️ المفضلة <small>(${_favorites.length})</small></button>`;
+  document.getElementById('categoryBar').innerHTML = cats + favBtn;
 }
 
 function filterByCategory(cat){_currentFilter=cat;renderCategories();renderProducts();}
 function filterProducts(){renderProducts();}
 
+function starsHtml(rating){
+  rating = Math.round(rating||0);
+  let html='<div class="rating-stars">';
+  for(let i=0;i<5;i++) html += i<rating ? '★' : '<span class="empty">★</span>';
+  html += '</div>';
+  return html;
+}
+
 function renderProducts(){
   const grid=document.getElementById('productGrid');
   const q=(document.getElementById('searchInput').value||'').toLowerCase();
+  const sortBy = document.getElementById('sortSelect') ? document.getElementById('sortSelect').value : 'new';
+  const priceMin = parseFloat(document.getElementById('priceMin') ? document.getElementById('priceMin').value : '');
+  const priceMax = parseFloat(document.getElementById('priceMax') ? document.getElementById('priceMax').value : '');
+
   let products=_products;
-  if(_currentFilter!=='الكل') products=products.filter(p=>p.category===_currentFilter);
+  if(_currentFilter==='__FAV__') products=products.filter(p=>_favorites.includes(p.id));
+  else if(_currentFilter!=='الكل') products=products.filter(p=>p.category===_currentFilter);
   if(q) products=products.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q));
+  if(!isNaN(priceMin)) products=products.filter(p=>Number(p.price)>=priceMin);
+  if(!isNaN(priceMax)) products=products.filter(p=>Number(p.price)<=priceMax);
+
+  products = products.slice();
+  if(sortBy==='price_asc') products.sort((a,b)=>a.price-b.price);
+  else if(sortBy==='price_desc') products.sort((a,b)=>b.price-a.price);
+  else if(sortBy==='rating') products.sort((a,b)=>(b.rating||0)-(a.rating||0));
+
   document.getElementById('productsCount').textContent=products.length+' منتج';
   if(products.length===0){grid.innerHTML=`<div class="no-products">😕 لا توجد منتجات</div>`;return;}
-  grid.innerHTML=products.map((p,i)=>`
-    <div class="product-card" style="animation-delay:${i*0.05}s" onclick="openDetail('${p.id}')">
-      ${p.isNew?'<div class="badge">جديد ✨</div>':''}
+  grid.innerHTML=products.map((p,i)=>{
+    const isFav = _favorites.includes(p.id);
+    const discount = p.oldPrice && p.oldPrice>p.price ? Math.round((1-p.price/p.oldPrice)*100) : 0;
+    return `
+    <div class="product-card ${p.inStock?'':'oos'}" style="animation-delay:${i*0.05}s" onclick="openDetail('${p.id}')">
+      <button class="fav-btn ${isFav?'active':''}" onclick="toggleFavorite('${p.id}')">${isFav?'❤️':'🤍'}</button>
+      ${!p.inStock ? '<div class="badge oos">نفذت الكمية</div>' : (discount>0 ? `<div class="badge discount">خصم ${discount}%</div>` : (p.isNew?'<div class="badge">جديد ✨</div>':''))}
       ${p.imageUrl?`<img class="product-img" src="${p.imageUrl}" alt="${p.name}" loading="lazy">`:`<div class="product-img-placeholder"></div>`}
       <div class="product-info">
         <div class="product-name">${p.name}</div>
         <div class="product-cat">${p.category||''}</div>
+        ${p.rating?starsHtml(p.rating):''}
         <div class="product-footer">
-          <div class="product-price">${Number(p.price).toLocaleString()} د.ع</div>
-          <button class="add-btn" onclick="event.stopPropagation();addToCart('${p.id}')">+ أضف</button>
+          <div>
+            ${p.oldPrice && p.oldPrice>p.price?`<span class="old-price">${Number(p.oldPrice).toLocaleString()}</span>`:''}
+            <span class="product-price">${Number(p.price).toLocaleString()} د.ع</span>
+          </div>
+          <button class="add-btn" onclick="event.stopPropagation();addToCart('${p.id}')" ${p.inStock?'':'disabled'}>${p.inStock?'+ أضف':'غير متوفر'}</button>
         </div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 function openDetail(id){
   const p=_products.find(x=>x.id===id); if(!p) return;
   _detailProduct=p;
+  _detailQty=1;
+  document.getElementById('detailQty').textContent='1';
   const img=document.getElementById('detailImg');
   if(p.imageUrl){img.src=p.imageUrl;img.style.display='block';}else{img.style.display='none';}
   document.getElementById('detailName').textContent=p.name;
   document.getElementById('detailCat').textContent=p.category||'';
+  document.getElementById('detailRating').innerHTML = p.rating ? starsHtml(p.rating) : '';
   document.getElementById('detailDesc').textContent=p.desc||'لا يوجد وصف';
-  document.getElementById('detailPrice').textContent=Number(p.price).toLocaleString()+' دينار عراقي';
+  const priceHtml = (p.oldPrice && p.oldPrice>p.price)
+    ? `<span class="old-price" style="font-size:1rem">${Number(p.oldPrice).toLocaleString()}</span> ${Number(p.price).toLocaleString()} دينار عراقي`
+    : Number(p.price).toLocaleString()+' دينار عراقي';
+  document.getElementById('detailPrice').innerHTML = priceHtml;
+  const stockEl = document.getElementById('detailStock');
+  const addBtn = document.getElementById('detailAddBtn');
+  if(p.inStock){ stockEl.textContent='✅ متوفر بالمخزون'; stockEl.style.color='#2e7d32'; addBtn.disabled=false; addBtn.textContent='🛒 أضف للسلة'; }
+  else { stockEl.textContent='❌ نفذت الكمية حالياً'; stockEl.style.color='#d32f2f'; addBtn.disabled=true; addBtn.textContent='غير متوفر'; }
   openModal('detailModal');
 }
 
-function addToCartFromDetail(){if(_detailProduct){addToCart(_detailProduct.id);closeModal('detailModal');}}
+function changeDetailQty(delta){
+  _detailQty = Math.max(1, (_detailQty||1)+delta);
+  document.getElementById('detailQty').textContent = _detailQty;
+}
+
+function addToCartFromDetail(){
+  if(_detailProduct && _detailProduct.inStock){
+    addToCart(_detailProduct.id, _detailQty||1);
+    closeModal('detailModal');
+  }
+}
+
+function shareProduct(){
+  if(!_detailProduct) return;
+  const text = `${_detailProduct.name} - ${Number(_detailProduct.price).toLocaleString()} د.ع - ${_storeSettings.name||'INGCO'}`;
+  if(navigator.share){
+    navigator.share({ title:_detailProduct.name, text, url:location.href }).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(text+' - '+location.href).then(()=>showToast('✅ تم نسخ تفاصيل المنتج')).catch(()=>showToast('⚠️ تعذر النسخ'));
+  }
+}
+
+function shareStore(){
+  const s=_storeSettings||{};
+  const text = `تسوق من ${s.name||'INGCO'} — ${s.description||'عدد وأدوات احترافية'}\n${location.href}`;
+  if(navigator.share){
+    navigator.share({ title:s.name||'INGCO', text, url:location.href }).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(text).then(()=>showToast('✅ تم نسخ رابط المتجر')).catch(()=>{
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,'_blank');
+    });
+  }
+}
 
 function orderProductWhatsapp(){
   if(!_detailProduct) return;
@@ -870,12 +1083,30 @@ function orderProductWhatsapp(){
   window.open(`https://wa.me/${s.whatsapp||''}?text=${encodeURIComponent(msg)}`,'_blank');
 }
 
-function addToCart(id){
+function saveCartLS(){
+  try{ localStorage.setItem('ingco_cart', JSON.stringify(_cart.map(c=>({id:c.id,qty:c.qty})))); }catch(e){}
+}
+function loadCartLS(){
+  try{ const raw=localStorage.getItem('ingco_cart'); if(raw) return JSON.parse(raw); }catch(e){}
+  return [];
+}
+function restoreCartFromLS(){
+  const saved = loadCartLS();
+  if(!saved.length) return;
+  _cart = saved.map(c=>{
+    const p=_products.find(x=>x.id===c.id);
+    return p ? {...p, qty:c.qty} : null;
+  }).filter(Boolean);
+  updateCartCount();
+}
+
+function addToCart(id, qty){
+  qty = qty || 1;
   const p=_products.find(x=>x.id===id); if(!p) return;
+  if(p.inStock===false){ showToast('❌ هذا المنتج غير متوفر حالياً'); return; }
   const ex=_cart.find(x=>x.id===id);
-  if(ex) ex.qty++; else _cart.
-push({...p,qty:1});
-  updateCartCount(); showToast(`✅ "${p.name}" أُضيف للسلة`);
+  if(ex) ex.qty+=qty; else _cart.push({...p,qty});
+  updateCartCount(); vibrate(20); showToast(`✅ "${p.name}" أُضيف للسلة`); saveCartLS();
 }
 
 function updateCartCount(){document.getElementById('cartCount').textContent=_cart.reduce((s,x)=>s+x.qty,0);}
@@ -907,7 +1138,7 @@ function openCartModal(){
 function changeQty(id,delta){
   const item=_cart.find(x=>x.id===id); if(!item) return;
   item.qty+=delta; if(item.qty<=0) _cart=_cart.filter(x=>x.id!==id);
-  updateCartCount(); openCartModal();
+  updateCartCount(); openCartModal(); saveCartLS();
 }
 
 function orderWhatsapp(){
@@ -930,7 +1161,8 @@ function renderAdminProducts(){
   list.innerHTML=_products.map(p=>`
     <div class="admin-product-row">
       ${p.imageUrl?`<img class="admin-product-img" src="${p.imageUrl}" alt="${p.name}">`:`<div class="admin-product-img"></div>`}
-      <div class="admin-product-info"><div class="admin-product-name">${p.name}</div><div class="admin-product-price">${Number(p.price).toLocaleString()} د.ع · ${p.category||'عام'}</div></div>
+      <div class="admin-product-info" onclick="editProduct('${p.id}')" style="cursor:pointer"><div class="admin-product-name">${p.name}</div><div class="admin-product-price">${Number(p.price).toLocaleString()} د.ع · ${p.category||'عام'}</div></div>
+      <button class="tab-btn" style="padding:6px 10px;font-size:0.75rem" onclick="editProduct('${p.id}')">✏️</button>
       <button class="delete-btn" onclick="deleteProduct('${p.id}')">🗑️</button>
     </div>`).join('');
 }
